@@ -8,7 +8,7 @@ class RouteLine(rr: RouteResponse) {
     private var routeResponse: RouteResponse = rr
     fun drawRoute(): ArrayList<TMapPolyLine> {
         val tmp = ArrayList<TMapPolyLine>()
-        val itineraries = routeResponse.metaData?.plan?.itineraries?.filter { it -> it.pathType == 1 } // 지하철+도보
+        val itineraries = routeResponse.metaData?.plan?.itineraries?.filter { it.pathType == 1 } // 지하철+도보
         if (itineraries != null) {
             val legs = itineraries[0].legs!!
             var i = 1
@@ -19,11 +19,13 @@ class RouteLine(rr: RouteResponse) {
                 tMapPoints.add(TMapPoint(leg.start.lat, leg.start.lon))
 
                 if (leg.mode == "WALK") {
-                    for (step in leg.steps!!) {
-                        val linestring = step.linestring.split(" ").map { it -> it.split(",") } // "111,222 333,444" -> [(111,222), (333,444)]
-                            .associate { (key, value) -> key to value }
-                        linestring.forEach{ it ->
-                            tMapPoints.add(TMapPoint(it.value.toDouble(), it.key.toDouble()))
+                    if(leg.steps != null) {
+                        for (step in leg.steps) {
+                            val linestring = step.linestring.split(" ").map { it.split(",") } // "111,222 333,444" -> [(111,222), (333,444)]
+                                .associate { (key, value) -> key to value }
+                            linestring.forEach{ it ->
+                                tMapPoints.add(TMapPoint(it.value.toDouble(), it.key.toDouble()))
+                            }
                         }
                     }
                     tMapPoints.add(TMapPoint(leg.end.lat, leg.end.lon))
