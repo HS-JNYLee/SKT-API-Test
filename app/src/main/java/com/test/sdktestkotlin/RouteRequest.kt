@@ -42,7 +42,7 @@ class TransitManager(context: Context) {
 
     fun getRoutes(routeRequest: RouteRequest): LiveData<RouteResponse> {
         val resultLiveData = MutableLiveData<RouteResponse>()
-        val appKey = context.getString(R.string.app_key)
+        val appKey = BuildConfig.API_KEY
         service.getRoutes(appKey, routeRequest).enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
                 // 실패 처리

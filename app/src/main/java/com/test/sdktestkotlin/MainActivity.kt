@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity() {
     private fun drawMap() {
         // TMapView 초기화
         tMapView = TMapView(this)
-        tMapView.setSKTMapApiKey("skiGDsaPMI4lDE0AFUVIIa9cOhymri9g8t7qGxMZ")
+        tMapView.setSKTMapApiKey(BuildConfig.API_KEY)
 
         val tMapContainer = findViewById<FrameLayout>(R.id.frameLayout)
         tMapContainer.addView(tMapView)
