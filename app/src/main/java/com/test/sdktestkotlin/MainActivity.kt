@@ -8,6 +8,8 @@ import androidx.core.view.WindowInsetsCompat
 import com.skt.tmap.TMapView
 import android.graphics.Color
 import android.widget.FrameLayout
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.Observer
 import com.skt.tmap.TMapData
 import com.skt.tmap.TMapPoint
 import com.skt.tmap.overlay.TMapPolyLine
@@ -27,10 +29,14 @@ class MainActivity : AppCompatActivity() {
 
         // TMapView 초기화 및 AppKey 인증 대기
         drawMap()
-        routeApi()
+        val response = routeApi()
+
+        for (tLine in response) {
+            tMapView.addTMapPolyLine(tLine)
+        }
     }
 
-    private fun routeApi() {
+    private fun routeApi(): Array<TMapPolyLine> {
         val transitManager = TransitManager(this@MainActivity)
 
         val routeRequest = RouteRequest(
@@ -42,8 +48,11 @@ class MainActivity : AppCompatActivity() {
             format = "json",
             count = 10
         )
-
-        transitManager.getRoutes(routeRequest)
+        var lines = emptyArray<TMapPolyLine>()
+            transitManager.getRoutes(routeRequest).observe(this, Observer { routeResponse ->
+                lines = RouteLine(routeResponse).drawRoute()
+        })
+        return lines
     }
 
     private fun drawMap() {

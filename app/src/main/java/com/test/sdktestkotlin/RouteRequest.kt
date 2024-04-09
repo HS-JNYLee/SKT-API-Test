@@ -3,6 +3,8 @@ package com.test.sdktestkotlin
 import TransitService
 import android.content.Context
 import android.util.Log
+import androidx.lifecycle.LiveData
+import androidx.lifecycle.MutableLiveData
 import com.beust.klaxon.Klaxon
 import com.google.gson.annotations.SerializedName
 import okhttp3.ResponseBody
@@ -27,7 +29,7 @@ class TransitManager(context: Context) {
     private val context: Context
     private val retrofit: Retrofit
     private val service: TransitService
-    private lateinit var routeResponse: RouteResponse
+    private var routeResponse: RouteResponse = RouteResponse()
 
     init {
         this.context = context
@@ -38,7 +40,8 @@ class TransitManager(context: Context) {
         service = retrofit.create(TransitService::class.java)
     }
 
-    fun getRoutes(routeRequest: RouteRequest) {
+    fun getRoutes(routeRequest: RouteRequest): LiveData<RouteResponse> {
+        val resultLiveData = MutableLiveData<RouteResponse>()
         val appKey = context.getString(R.string.app_key)
         service.getRoutes(appKey, routeRequest).enqueue(object : Callback<ResponseBody> {
             override fun onFailure(call: Call<ResponseBody>, t: Throwable) {
@@ -49,13 +52,15 @@ class TransitManager(context: Context) {
                 if (response.isSuccessful) {
                     val responseBody = response.body()
                     if (responseBody != null) {
-                        routeResponse = Klaxon().parse<RouteResponse>(responseBody.string())!!
-                    Log.d("RESPONSE", "SUCCESS")
+                        val routeResponse = Klaxon().parse<RouteResponse>(responseBody.string())!!
+                        resultLiveData.postValue(routeResponse) // LiveData에 결과 전달
+                        Log.d("RESPONSE", "SUCCESS")
                     }
                 } else {
                     Log.d("RESPONSE", "ERROR")
                 }
             }
         })
+        return resultLiveData
     }
 }

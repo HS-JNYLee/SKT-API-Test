@@ -33,7 +33,10 @@ data class Plan(
 data class Itinerary(
     val fare: Fare? = null,
     val totalTime: Int? = null,
-    val legs: List<Leg>? = null
+    val legs: List<Leg>? = null,
+    val totalWalkTime: Int? =null,
+    val transferCount: Int? = null,
+    val pathType: Int? = null // 교통수단 종류
 )
 
 data class Fare(
@@ -55,8 +58,8 @@ data class Leg(
     val mode: String? = null,
     val sectionTime: Int? = null,
     val distance: Int? = null,
-    val start: Location? = null,
-    val end: Location? = null,
+    val start: Location,
+    val end: Location,
     val steps: List<Step>? = null,
     val routeColor: String? = null,
     val route: String? = null,
@@ -68,16 +71,16 @@ data class Leg(
 )
 
 data class Location(
-    val name: String? = null,
-    val lon: Number? = null,
-    val lat: Number? = null
+    val name: String,
+    val lon: Double,
+    val lat: Double
 )
 
 data class Step(
     val streetName: String? = null,
     val distance: Int? = null,
     val description: String? = null,
-    val linestring: String? = null
+    val linestring: String
 )
 
 data class PassStopList(
@@ -87,8 +90,8 @@ data class PassStopList(
 data class Station(
     val index: Int? = null,
     val stationName: String? = null,
-    val lon: String? = null,
-    val lat: String? = null,
+    val lon: String,
+    val lat: String,
     val stationID: String? = null
 )
 
