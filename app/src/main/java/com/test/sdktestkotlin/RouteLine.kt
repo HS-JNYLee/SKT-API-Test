@@ -14,32 +14,38 @@ class RouteLine(rr: RouteResponse) {
             var i = 1
             for (leg in legs) {
                 var t = TMapPolyLine()
+                var color = Color.RED
                 val tMapPoints = ArrayList<TMapPoint>()
-
                 tMapPoints.add(TMapPoint(leg.start.lat, leg.start.lon))
-
-                if (leg.mode == "WALK") {
-                    if(leg.steps != null) {
-                        for (step in leg.steps) {
-                            val linestring = step.linestring.split(" ").map { it.split(",") } // "111,222 333,444" -> [(111,222), (333,444)]
-                                .associate { (key, value) -> key to value }
-                            linestring.forEach{ it ->
-                                tMapPoints.add(TMapPoint(it.value.toDouble(), it.key.toDouble()))
+                if (leg.mode == "WALK" && leg.steps != null) { // 경로가 도보일 때
+                    leg.steps.forEach { step ->
+                        step.linestring.split(" ") // "111,222 333,444" -> ["111,222", "333,444"]
+                            .map { it.split(",") } // ["111,222", "333,444"] -> ["111", "222"], ["333", "444"]
+                            .associate { (key, value) -> key to value } // ["111", "222"], ["333", "444"] -> [("111", "222"), ("333", "444")]
+                            .forEach {
+                                tMapPoints.add(
+                                    TMapPoint(
+                                        it.value.toDouble(), // longitude
+                                        it.key.toDouble() // latitude
+                                    )
+                                )
                             }
-                        }
                     }
-                    tMapPoints.add(TMapPoint(leg.end.lat, leg.end.lon))
-                    t = TMapPolyLine("line"+(i++), tMapPoints)
-                    t.lineColor = Color.BLUE
-                } else if (leg.mode == "SUBWAY") {
-                    val stationList = leg.passStopList!!.stationList!!
-                    for (station in stationList) {
-                        tMapPoints.add(TMapPoint(station.lat.toDouble(), station.lon.toDouble()))
+                    color = Color.RED
+                } else if (leg.mode == "SUBWAY") { // 경로가 지하철일 때
+                    leg.passStopList!!.stationList!!.forEach {
+                        tMapPoints.add(
+                            TMapPoint(
+                                it.lat.toDouble(), // longitude
+                                it.lon.toDouble() // latitude
+                            )
+                        )
                     }
-                    tMapPoints.add(TMapPoint(leg.end.lat, leg.end.lon))
-                    t = TMapPolyLine("line"+(i++), tMapPoints)
-                    t.lineColor = Color.RED
+                    color = Color.BLUE
                 }
+                tMapPoints.add(TMapPoint(leg.end.lat, leg.end.lon))
+                t = TMapPolyLine("line" + (i++), tMapPoints)
+                t.lineColor = color
                 tmp.add(t)
             }
         }
